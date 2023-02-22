@@ -8,17 +8,27 @@ class Server {
     });
   }
 
-  fireHttp() {
-    this.server.route({
-      method: '*',
-      path: '/{any*}',
-      handler: (request, h) => h.response('Hello World!').code(200),
-    });
+  rootDir(rootDir) {
+    this.rootDir = rootDir;
 
     return this;
   }
 
   async start() {
+    const plugins = require(`${this.rootDir}/api`);
+
+    for (const plugin of plugins) {
+      const api = require(`${this.rootDir}/api/${plugin.name}`);
+      const Service = require(`${this.rootDir}/services/${plugin.service}`);
+
+      await this.server.register({
+        plugin: api,
+        options: {
+          service: new Service(),
+        },
+      });
+    }
+
     await this.server.start();
 
     // eslint-disable-next-line no-console
