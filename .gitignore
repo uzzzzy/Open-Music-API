@@ -1,0 +1,9 @@
+# Directory
+node_modules
+.vscode
+
+# File
+.DS_Store
+
+# ENVIRONMENT VARIABLES
+.env
