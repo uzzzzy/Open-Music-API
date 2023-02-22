@@ -8,6 +8,16 @@ class Server {
     });
   }
 
+  fireHttp() {
+    this.server.route({
+      method: '*',
+      path: '/{any*}',
+      handler: (request, h) => h.response('Hello World!').code(200),
+    });
+
+    return this;
+  }
+
   async start() {
     await this.server.start();
 
