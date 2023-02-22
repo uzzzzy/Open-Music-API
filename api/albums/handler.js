@@ -1,6 +1,7 @@
 class AlbumsHandler {
-  constructor(service) {
+  constructor(service, validator) {
     this._service = service;
+    this._validator = validator;
 
     this.postAlbumHandler = this.postAlbumHandler.bind(this);
     this.getAlbumsHandler = this.getAlbumsHandler.bind(this);
@@ -11,8 +12,9 @@ class AlbumsHandler {
 
   postAlbumHandler(request, h) {
     try {
-      const { name } = request.payload;
-      const albumId = this._service.addAlbum({ name });
+      this._validator.validateAlbumPayload(request.payload);
+      const { name, year } = request.payload;
+      const albumId = this._service.addAlbum({ name, year });
 
       const response = h.response({
         status: 'success',
@@ -63,20 +65,45 @@ class AlbumsHandler {
     }
   }
 
-  putAlbumByIdHandler(request) {
-    this._service.editAlbumById(request.params.id, request.payload);
-    return {
-      status: 'success',
-      message: 'Album berhasil diperbarui',
-    };
+  putAlbumByIdHandler(request, h) {
+    try {
+      this._validator.validateAlbumPayload(request.payload);
+
+      this._service.editAlbumById(request.params.id, request.payload);
+
+      return {
+        status: 'success',
+        message: 'Album berhasil diperbarui',
+      };
+    } catch (error) {
+      const response = h.response({
+        status: 'fail',
+        message: error.message,
+      });
+      if (error.message === 'Gagal memperbarui lagu. Id tidak ditemukan')
+        response.code(404);
+      else response.code(400);
+      return response;
+    }
   }
 
-  deleteAlbumByIdHandler(request) {
-    this._service.deleteAlbumById(request.params.id);
-    return {
-      status: 'success',
-      message: 'Album berhasil dihapus',
-    };
+  deleteAlbumByIdHandler(request, h) {
+    try {
+      this._service.deleteAlbumById(request.params.id);
+      return {
+        status: 'success',
+        message: 'Album berhasil dihapus',
+      };
+    } catch (error) {
+      const response = h.response({
+        status: 'fail',
+        message: error.message,
+      });
+      if (error.message === 'Lagu gagal dihapus. Id tidak ditemukan')
+        response.code(404);
+      else response.code(400);
+      return response;
+    }
   }
 }
 

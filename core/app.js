@@ -20,13 +20,22 @@ class Server {
     for (const plugin of plugins) {
       const api = require(`${this.rootDir}/api/${plugin.name}`);
       const Service = require(`${this.rootDir}/services/${plugin.service}`);
+      const Validator = require(`${this.rootDir}/validator/${
+        plugin.validator || plugin.name
+      }`);
 
-      await this.server.register({
-        plugin: api,
-        options: {
-          service: new Service(),
-        },
-      });
+      let config = {};
+
+      config.plugin = api;
+      config.options = {
+        service: new Service(),
+      };
+
+      if (plugin.validator) {
+        config.options.validator = Validator;
+      }
+
+      await this.server.register(config);
     }
 
     await this.server.start();

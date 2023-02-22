@@ -5,16 +5,17 @@ class AlbumsService {
     this._albums = [];
   }
 
-  addAlbum({ name, year, performer }) {
-    const id = nanoid(16);
+  addAlbum({ name, year }) {
+    const id = `album-${nanoid(16)}`;
     const insertedAt = new Date().toISOString();
     const updatedAt = insertedAt;
+
+    console.log(year);
 
     const newAlbum = {
       id,
       name,
       year,
-      performer,
       insertedAt,
       updatedAt,
     };
@@ -45,7 +46,7 @@ class AlbumsService {
     return album;
   }
 
-  editAlbumById(id, { name, year, performer }) {
+  editAlbumById(id, { name, year }) {
     const index = this._albums.findIndex((album) => album.id === id);
 
     if (index === -1) {
@@ -58,7 +59,6 @@ class AlbumsService {
       ...this._albums[index],
       name,
       year,
-      performer,
       updatedAt,
     };
   }
